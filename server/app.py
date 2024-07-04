@@ -55,14 +55,14 @@ class RestaurantPizzaResource(Resource):
     def post(self):
         data = request.get_json()
         if not data:
-            return make_response(jsonify({"errors": ["Validation errors"]}), 400)
+            return make_response(jsonify({"errors": ["validation errors"]}), 400)
 
         pizza_id = data.get('pizza_id')
         restaurant_id = data.get('restaurant_id')
         price = data.get('price')
 
         if not pizza_id or not restaurant_id or not isinstance(price, (int, float)) or not (1 <= price <= 30):
-            return make_response(jsonify({"errors": ["Validation errors"]}), 400)
+            return make_response(jsonify({"errors": ["validation errors"]}), 400)
 
         try:
             new_restaurant_pizza = RestaurantPizza(
@@ -74,7 +74,7 @@ class RestaurantPizzaResource(Resource):
             db.session.commit()
             return make_response(jsonify(new_restaurant_pizza.to_dict()), 201)
         except Exception:
-            return make_response(jsonify({"errors": ["Validation errors"]}), 400)
+            return make_response(jsonify({"errors": ["validation errors"]}), 400)
 
 api.add_resource(RestaurantListResource, "/restaurants")
 api.add_resource(RestaurantResource, "/restaurants/<int:id>")

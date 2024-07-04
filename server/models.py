@@ -81,5 +81,7 @@ class RestaurantPizza(db.Model, SerializerMixin):
             'id': self.id,
             'price': self.price,
             'restaurant_id': self.restaurant_id,
-            'pizza_id': self.pizza_id
+            'pizza_id': self.pizza_id,
+            'pizza': self.pizza.to_dict(),
+            'restaurant': self.restaurant.to_dict(include_pizzas=False)
         }

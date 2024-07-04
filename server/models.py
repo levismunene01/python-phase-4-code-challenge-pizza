@@ -1,7 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 from sqlalchemy.orm import validates
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy_serializer import SerializerMixin
 
 metadata = MetaData(
@@ -19,22 +18,18 @@ class Restaurant(db.Model, SerializerMixin):
     name = db.Column(db.String)
     address = db.Column(db.String)
     restaurant_pizzas = db.relationship('RestaurantPizza', backref='restaurant', cascade="all, delete-orphan")
-    pizzas = association_proxy('restaurant_pizzas', 'pizza')
 
-    serialize_rules = ('-restaurant_pizzas.restaurant', '-restaurant_pizzas.pizza')
+    serialize_rules = ('-restaurant_pizzas',)
 
     def __repr__(self):
         return f"<Restaurant {self.name}>"
 
-    def to_dict(self, include_pizzas=True):
-        data = {
+    def to_dict(self):
+        return {
             'id': self.id,
             'name': self.name,
             'address': self.address
         }
-        if include_pizzas:
-            data['restaurant_pizzas'] = [rp.to_dict() for rp in self.restaurant_pizzas]
-        return data
 
 class Pizza(db.Model, SerializerMixin):
     __tablename__ = "pizzas"
@@ -43,9 +38,8 @@ class Pizza(db.Model, SerializerMixin):
     name = db.Column(db.String)
     ingredients = db.Column(db.String)
     restaurant_pizzas = db.relationship('RestaurantPizza', backref='pizza', cascade="all, delete-orphan")
-    restaurants = association_proxy('restaurant_pizzas', 'restaurant')
 
-    serialize_rules = ('-restaurant_pizzas.restaurant', '-restaurant_pizzas.pizza')
+    serialize_rules = ('-restaurant_pizzas',)
 
     def __repr__(self):
         return f"<Pizza {self.name}, {self.ingredients}>"

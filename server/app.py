@@ -1,4 +1,4 @@
-from models import db, Restaurant, RestaurantPizza, Pizza
+from models import db, Restaurant, Pizza, RestaurantPizza
 from flask_migrate import Migrate
 from flask import Flask, request, make_response, jsonify
 from flask_restful import Api, Resource
@@ -16,6 +16,8 @@ migrate = Migrate(app, db)
 db.init_app(app)
 api = Api(app)
 
+# Routes
+
 @app.route("/")
 def index():
     return "<h1>Code Challenge</h1>"
@@ -23,14 +25,20 @@ def index():
 class RestaurantListResource(Resource):
     def get(self):
         restaurants = Restaurant.query.all()
-        return jsonify([restaurant.to_dict(include_pizzas=False) for restaurant in restaurants])
+        return jsonify([restaurant.to_dict() for restaurant in restaurants])
 
 class RestaurantResource(Resource):
     def get(self, id):
         restaurant = Restaurant.query.get(id)
         if restaurant:
             restaurant_pizzas = RestaurantPizza.query.filter_by(restaurant_id=id).all()
-            pizzas = [Pizza.query.get(rp.pizza_id).to_dict() for rp in restaurant_pizzas]
+            pizzas = [{
+                "id": rp.id,
+                "pizza": Pizza.query.get(rp.pizza_id).to_dict(),
+                "pizza_id": rp.pizza_id,
+                "price": rp.price,
+                "restaurant_id": rp.restaurant_id
+            } for rp in restaurant_pizzas]
             restaurant_data = restaurant.to_dict()
             restaurant_data["restaurant_pizzas"] = pizzas
             return jsonify(restaurant_data)
